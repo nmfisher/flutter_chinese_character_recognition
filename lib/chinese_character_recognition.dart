@@ -1,83 +1,31 @@
-import 'dart:async';
 import 'dart:ui';
-
-import 'package:flutter/services.dart';
+import 'package:chinese_character_recognition/recognition_adapter.dart';
+import 'package:chinese_character_recognition/recognition_adapter_stub.dart'
+    // ignore: uri_does_not_exist
+    if (dart.library.html) 'html_recognition_adapter.dart'
+    // ignore: uri_does_not_exist
+    if (dart.library.io) 'native_recognition_adapter.dart';
 
 class ChineseCharacterRecognition {
-  static const MethodChannel _channel =
-      const MethodChannel('chinese_character_recognition');
-
-  static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
-  }
-
-  StreamController<bool> _initializedController =
-      StreamController<bool>.broadcast();
-
-  Stream<bool> get initialized => _initializedController.stream;
-
-  StreamController<List<String>> _candidatesController =
-      StreamController<List<String>>.broadcast();
-  Stream<List<String>> get candidates => _candidatesController.stream;
-
-  StreamController<String> _errorController = StreamController<String>();
-  Stream<String> get error => _errorController.stream;
+ 
+  RecognitionAdapter _adapter;
+  
+  Stream<List<String>> get candidates => _adapter.candidates;
 
   static const int NUM_CANDIDATES = 8;
-  static final _singleton = ChineseCharacterRecognition._internal();
+  static final _singleton = ChineseCharacterRecognition._internal(NUM_CANDIDATES);
 
-  factory ChineseCharacterRecognition() {
+  factory ChineseCharacterRecognition(int numCandidates) {
     return _singleton;
   }
 
-  ChineseCharacterRecognition._internal() {
-    _channel.setMethodCallHandler(channelMethodCallHandler);
-  }
-
-  void initialize() async {
-    await _channel.invokeMethod('initialize', NUM_CANDIDATES);
+  ChineseCharacterRecognition._internal(int numCandidates) {
+    _adapter = getAdapter(numCandidates);
   }
 
   void recognize(List<List<Offset>> strokes) async {
-    if (strokes.length == 0) {
-      // the drawing canvas has been reset
-      _candidatesController.add(null);
-      return;
-    }
-
-    await _channel.invokeMethod(
-        "lookup",
-        strokes
-            .where((stroke) => stroke.length > 1)
-            .map((stroke) => stroke.map((pt) => [pt.dx, pt.dy]).toList()).toList());
+    strokes = strokes.where((stroke) => stroke.length > 1).toList();
+    _adapter.lookup(strokes);
   }
 
-  Future<dynamic> channelMethodCallHandler(MethodCall call) {
-    switch (call.method) {
-      case "initialized":
-        _initializedController.add(true);
-        break;
-      case "result":
-        _candidatesController
-            .add(call.arguments.map((x) => x[1]).cast<String>().toList());
-        break;
-      case "error":
-        _errorController.add(call.arguments);
-        break;
-      default:
-        throw UnsupportedError(call.method);
-    }
-  }
-
-  void clear(dynamic sender) {
-    _candidatesController.sink.add(null);
-  }
-
-  @override
-  void dispose() {
-    _candidatesController.close();
-    _initializedController.close();
-    _errorController.close();
-  }
 }

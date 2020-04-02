@@ -1,5 +1,3 @@
-@JS('flutter_chinese_character_recognition')
-library flutter_chinese_character_recognition;
 
 import 'dart:async';
 import 'dart:core';
@@ -10,14 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
 
-@JS()
-class HandwritingRecognizer {
-  external HandwritingRecognizer(int numCandidates, Function onInit,
-      Function onResult, Function onError);
-  external void lookup(List strokes);
-  external void clear();
-  external void initialize();
-}
+import 'html_recognition_adapter.dart';
+
 
 class ChineseCharacterRecognitionPlugin {
   

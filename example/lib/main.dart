@@ -14,32 +14,14 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
+  ChineseCharacterRecognition _plugin;
   String _platformVersion = 'Unknown';
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      platformVersion = await ChineseCharacterRecognition.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+    _plugin = ChineseCharacterRecognition(8);
   }
 
   @override
@@ -50,9 +32,21 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
-        ),
+          child: Column(children:[
+            RaisedButton(
+              child: Text("CLICK ME"),
+              onPressed: () {
+                _plugin.recognize([[Offset(0,1), Offset(1,2), Offset(10,20), Offset(50,70)], ]);
+              },),
+            Expanded(child:StreamBuilder(
+              stream:_plugin.candidates,
+              builder:(BuildContext ctx, AsyncSnapshot<List<String>> candidates) {
+                if(candidates.data == null)
+                  return Text("No candidates");
+              return ListView(children: candidates.data.map((x) => Text(x)).toList());
+              }
+          )),]
       ),
-    );
+    )));
   }
 }
