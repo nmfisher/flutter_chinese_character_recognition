@@ -21,9 +21,12 @@ abstract class RecognitionAdapter {
 
   void lookup(List<List<Offset>> strokes);
   
-  void clear(dynamic sender) {
+  void clear() {
     candidatesController.sink.add(null);
   }
+
+  void initialize();
+
 
   void dispose() {
     candidatesController.close();

@@ -15,16 +15,20 @@ class NativeRecognitionAdapter extends RecognitionAdapter {
       return;
     }
     
-    var candidates = nativeLookup(strokes.toList(), this.numCandidates);
+    var candidates = nativeLookup(strokes.map((x) => x.map((y) => [y.dx, y.dy]).toList()).toList(), this.numCandidates);
     candidatesController.sink.add(candidates);
   }
 
   NativeRecognitionAdapter._internal(int numCandidates) : super(numCandidates) {
-    initializedController.sink.add(true);
   }
 
   factory NativeRecognitionAdapter(int numCandidates) {
     return NativeRecognitionAdapter._internal(numCandidates);
+  }
+
+  @override
+  void initialize() {
+    initializedController.sink.add(true);
   }
 
 }

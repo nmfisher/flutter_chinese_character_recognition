@@ -1,6 +1,5 @@
 import 'dart:ffi' as ffi;
 import 'dart:ffi';
-import 'dart:ui';
 import 'package:ffi/ffi.dart';
 
 ffi.DynamicLibrary dl = ffi.DynamicLibrary.open("libhanzi_lookup.so");
@@ -14,29 +13,37 @@ class Match extends Struct {
   @ffi.Uint32()
   int hanzi;
   
-  @ffi.Double()
+  @ffi.Float()
   double score;
 }
 
-List<String> nativeLookup(List<List<Offset>> strokes, int numCandidates) {
+List<String> nativeLookup(List<List<List<double>>> strokes, int numCandidates) {
   var matches = allocate<Match>(count: numCandidates);
   var strokePtrs = allocate<Stroke>(count: strokes.length);
 
   for (int i = 0; i < strokes.length; i++) {
-    Point point;
+    var point = allocate<Point>(count:strokes[i].length);
     for (var j = 0; j < strokes[i].length; j++) {
-      point = Point.allocate(strokes[i][j].dx, strokes[i][j].dy);
+      point.elementAt(j).ref.x = strokes[i][j][0];
+      point.elementAt(j).ref.y = strokes[i][j][1];
     }
-    strokePtrs.elementAt(i).ref.points = point.addressOf;
+    strokePtrs.elementAt(i).ref.points = point;
     strokePtrs.elementAt(i).ref.num_points = strokes[i].length;
   }
   var lookupFn =
       dl.lookupFunction<NativeLookupFunction, NativeLookupFunctionDart>(
           "lookupFFI");
-  lookupFn(strokePtrs, strokes.length, matches, numCandidates);
-  var matchList = List.generate(numCandidates, (index) => matches.elementAt(index));
-  matchList.sort((a,b) => b.ref.score.compareTo((a.ref.score)));
-  return matchList.map((x) => String.fromCharCode(x.ref.hanzi)).toList();
+  int numResults = lookupFn(strokePtrs, strokes.length, matches, numCandidates);
+  
+  var matchList = List.generate(numResults, (index) => matches.elementAt(index).ref);
+  
+  matchList.sort((a,b) => b.score.compareTo((a.score)));
+  return matchList.map((x) => x.hanzi <= 1114111 ? String.fromCharCode(x.hanzi) : '').toList();
+}
+
+void main() {
+  // print(String.fromCharCode(20108));
+  print(nativeLookup([[[70.0,124.0],[71,124],[79,124],[104,124],[119,124],[132,125],[151,126],[168,126],[169,126],[189,125],[191,124],[191,124]]], 5));
 }
 
 
