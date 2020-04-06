@@ -8,8 +8,15 @@
 #import "chinese_character_recognition-Swift.h"
 #endif
 
+#import "bindings.h"
+
 @implementation ChineseCharacterRecognitionPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   [SwiftChineseCharacterRecognitionPlugin registerWithRegistrar:registrar];
 }
+
++ (void)dummy {
+	lookupFFI(NULL, 0, NULL, 0);
+}
+
 @end
