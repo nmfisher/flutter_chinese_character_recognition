@@ -21,7 +21,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _plugin = ChineseCharacterRecognition(8);
+    _plugin = ChineseCharacterRecognition();
   }
 
   @override

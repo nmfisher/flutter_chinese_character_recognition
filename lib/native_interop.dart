@@ -1,8 +1,9 @@
 import 'dart:ffi' as ffi;
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
+import 'dart:io'; // For Platform.isX
 
-ffi.DynamicLibrary dl = ffi.DynamicLibrary.open("libhanzi_lookup.so");
+ffi.DynamicLibrary dl = Platform.isAndroid ? ffi.DynamicLibrary.open("libhanzi_lookup.so") : DynamicLibrary.process();
 
 typedef NativeLookupFunction = Uint8 Function(
     Pointer<Stroke>, Uint8 numStrokes, Pointer<Match>, Uint8 numMatches);
