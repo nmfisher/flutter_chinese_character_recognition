@@ -22,5 +22,8 @@ A new flutter plugin project.
   # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS[sdk=iphonesimulator*]' => 'x86_64' }
   s.swift_version = '5.0'
-  s.xcconfig = { 'OTHER_LDFLAGS' => '-framework hanzi_lookup -all_load' }
+  s.xcconfig = { 
+	'OTHER_LDFLAGS' => '-framework hanzi_lookup -all_load',
+'LIBRARY_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/.symlinks/plugins/chinese_character_recognition/ios',
+	}
 end
