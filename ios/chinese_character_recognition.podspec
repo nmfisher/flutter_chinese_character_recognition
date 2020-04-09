@@ -23,7 +23,7 @@ A new flutter plugin project.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS[sdk=iphonesimulator*]' => 'x86_64' }
   s.swift_version = '5.0'
   s.xcconfig = { 
-	'OTHER_LDFLAGS' => '-framework hanzi_lookup -all_load',
-'LIBRARY_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/.symlinks/plugins/chinese_character_recognition/ios',
+	'OTHER_LDFLAGS' => '-all_load',
+
 	}
 end
